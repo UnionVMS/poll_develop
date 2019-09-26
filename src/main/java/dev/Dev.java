@@ -23,9 +23,7 @@ public class Dev {
 		Socket socket = null;
 		PrintStream output = null;
 		try {
-
 			socket = new Socket("148.122.32.20", 23);
-
 			// logon
 			BufferedInputStream input = new BufferedInputStream(socket.getInputStream());
 			output = new PrintStream(socket.getOutputStream());
@@ -35,12 +33,7 @@ public class Dev {
 			functions.sendPwd(output, "4557");
 			functions.readUntil(">", input);
 			LOGGER.info("Logged in");
-			
-			
 			developConfigPolls(input, output);
-			
-			
-
 		} catch (Throwable t) {
 			LOGGER.error(t.toString(), t);
 		} finally {
@@ -48,7 +41,6 @@ public class Dev {
 				output.print("QUIT \r\n");
 				output.flush();
 				LOGGER.info("Logged out");
-
 			}
 			if ((socket != null) && (socket.isConnected())) {
 				try {
@@ -59,9 +51,6 @@ public class Dev {
 			}
 		}
 	}
-
-
-
 
 	public static void main(String[] args) {
 		Dev obj = new Dev();
