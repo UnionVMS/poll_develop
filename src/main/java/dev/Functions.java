@@ -138,27 +138,4 @@ public class Functions {
 
 		throw new IOException("Unknown response from Inmarsat-C LES Telnet @   (readUntil) : " + sb.toString());
 	}
-
-	public String readUntilXXX(String pattern, InputStream in) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		byte[] buffer = new byte[1024];
-		int bytesRead;
-
-		bytesRead = in.read(buffer);
-		while (bytesRead > 0) {
-
-			String s = new String(buffer, 0, bytesRead);
-			sb.append(s);
-			String currentString = sb.toString();
-			if (currentString.trim().endsWith(pattern)) {
-				return currentString;
-			} else {
-				containsFault(currentString);
-			}
-			bytesRead = in.read(buffer);
-		}
-
-		throw new IOException("Unknown response from Inmarsat-C LES Telnet @   (readUntil) : " + sb.toString());
-	}
-
 }
