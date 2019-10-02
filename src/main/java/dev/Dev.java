@@ -28,6 +28,14 @@ public class Dev {
         // (night and day (24 hours) are divided in  10000 frame's a'8.64 sec.).
         // The “24” at the end indicate that the terminals shall send one report every hour.
         // 13:28  blir 5611
+
+        if((hour < 0) || (hour > 24)){
+            throw new IllegalArgumentException("Hour must be between 0 and 24. Was " + hour);
+        }
+        if((minute < 0) || (minute > 60)){
+            throw new IllegalArgumentException("Minute must be between 0 and 60. Was " + minute);
+        }
+
         int value = (int)((((hour*60)+minute)*60)/8.64);
         return String.valueOf(value);
     }
@@ -145,7 +153,13 @@ public class Dev {
 
     public static void main(String[] args) {
         Dev obj = new Dev();
-        // obj.go();
-        obj.calcStartFrame(13,28);
+        obj.go();
+
+
+        for(int hour = 0 ; hour < 24 ; hour++){
+            for(int minute = 0 ; minute < 60 ; minute++){
+                System.out.println(hour + ":" + minute + " = " + obj.calcStartFrame(hour,minute));
+            }
+        }
     }
 }
