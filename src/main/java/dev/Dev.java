@@ -14,12 +14,22 @@ public class Dev {
 
     String host = "148.122.32.20";
     int port = 23;
-    String name = "FIX THIS";
-    String pwd = "FIX THIS";
+    String name = "FIXTHIS";
+    String pwd = "FIXTHIS";
     String DNID = "10745";
+    String MEMBERNUMBER = "255";
 
     private void trace(String str) {
         System.out.println(str);
+    }
+
+    private String calcStartFrame(int hour, int minute){
+        // (((hour*60)+minute)*60)/8.64 = start frame number.
+        // (night and day (24 hours) are divided in  10000 frame's a'8.64 sec.).
+        // The “24” at the end indicate that the terminals shall send one report every hour.
+        // 13:28  blir 5611
+        int value = (int)((((hour*60)+minute)*60)/8.64);
+        return String.valueOf(value);
     }
 
 
@@ -62,7 +72,7 @@ public class Dev {
     private void configPoll(BufferedInputStream input, PrintStream out) {
         trace("configPoll BEGIN");
 
-        String cmd = String.format("poll 0,G,%s,N,1,0,4,,5611,24", DNID);
+        String cmd = String.format("poll 0,G,%s,N,1,0,  4,,5611,24", DNID);
         trace(cmd);
         try {
             functions.write(cmd, out);
@@ -84,10 +94,10 @@ public class Dev {
 
     private void developConfigPolls(BufferedInputStream input, PrintStream output) {
 
-        //stopPoll(input, output);
-        configPoll(input, output);
-        startPoll(input, output);
         stopPoll(input, output);
+        configPoll(input, output);
+        //startPoll(input, output);
+        //stopPoll(input, output);
 
 
         trace("Ready");
@@ -135,6 +145,7 @@ public class Dev {
 
     public static void main(String[] args) {
         Dev obj = new Dev();
-        obj.go();
+        // obj.go();
+        obj.calcStartFrame(13,28);
     }
 }
