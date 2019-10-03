@@ -135,9 +135,9 @@ public class Dev {
         }
     }
 
-    private void configIndividualPoll(BufferedInputStream input, PrintStream out, int startHour, int startMinute, String OCEANREGION, String DNID, String SATELLITE_NUMBER, String REPORTS_PER_24_HOUR) {
+    private void configIndividualPoll(BufferedInputStream input, PrintStream out, int startHour, int startMinute, String OCEANREGION, String DNID, String SATELLITE_NUMBER, String FREQUENCY) {
         String STARTFRAME = calcStartFrame(startHour, startMinute);
-        String cmd = String.format("poll %s,I,%s,N,1,%S,4,,%s,%s", OCEANREGION, DNID, SATELLITE_NUMBER, STARTFRAME, REPORTS_PER_24_HOUR);
+        String cmd = String.format("poll %s,I,%s,N,1,%S,4,,%s,%s", OCEANREGION, DNID, SATELLITE_NUMBER, STARTFRAME, FREQUENCY);
         trace(cmd);
         try {
             functions.write(cmd, out);
@@ -157,17 +157,17 @@ public class Dev {
         String DNID = "10745";
         String SATELLITE_NUMBER = "426509712";
 
-//        String REPORTS_PER_24_HOUR = "24"; // every hour
-//        String REPORTS_PER_24_HOUR = "48"; // 2 per hour
-        String REPORTS_PER_24_HOUR = "96"; // every quarter
-//        String REPORTS_PER_24_HOUR = "192"; // every  7.5 minutes
+//        String EVERY_HOUR = "24"; // every hour
+//        String TWO_PER__HOUR = "48"; // 2 per hour
+        String EVERY_15_MINUTES = "96"; // every quarter
+//        String EVERY_7_AND_HALF_MINUTES = "192"; // every  7.5 minutes
 
         boolean individual = true;
 
         if (individual) {  // individual
             String OCEANREGION = "3";
             stopIndividualPoll(input, output, OCEANREGION, DNID, SATELLITE_NUMBER);
-            configIndividualPoll(input, output, 9, 30, OCEANREGION, DNID, SATELLITE_NUMBER, REPORTS_PER_24_HOUR);
+            configIndividualPoll(input, output, 9, 30, OCEANREGION, DNID, SATELLITE_NUMBER, EVERY_15_MINUTES);
             startIndividualPoll(input, output, OCEANREGION, DNID, SATELLITE_NUMBER);
             //stopIndividualPoll(input, output,OCEANREGION,DNID,MEMBER);
         } else {
