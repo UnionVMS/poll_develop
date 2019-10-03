@@ -17,6 +17,15 @@ public class Dev {
         System.out.println(str);
     }
 
+    private String toReferenceNumber(String response) {
+
+        int pos = response.indexOf("number");
+        String s = "";
+        if (pos < 0) return response;
+        s = response.substring(pos);
+        return s.replaceAll("[^0-9]", ""); // returns 123
+    }
+
     private String calcStartFrame(int hour, int minute) {
         // (((hour*60)+minute)*60)/8.64 = start frame number.
         // (night and day (24 hours) are divided in  10000 frame's a'8.64 sec.).
@@ -34,9 +43,7 @@ public class Dev {
         return String.valueOf(value);
     }
 
-
     private void stopGroupPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID) {
-        trace("stopGroupPoll BEGIN");
         String cmd = String.format("poll %s,G,%s,N,1,0,6", OCEANREGION, DNID);
         trace(cmd);
         try {
@@ -49,32 +56,11 @@ public class Dev {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        trace("stopGroupPoll END");
     }
-
-    private void stopIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID, String MEMBER) {
-        trace("stopIndividualPoll BEGIN");
-        String cmd = String.format("poll %s,I,%s,N,1,%s,6", OCEANREGION,DNID, MEMBER);
-        trace(cmd);
-        try {
-            functions.write(cmd, out);
-            String status = functions.readUntil("Text:", input);
-            functions.write(".s", out);
-            status = functions.readUntil(">", input);
-            status = toReferenceNumber(status);
-            trace("Reference number : " + status);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        trace("stopIndividualPoll END");
-    }
-
 
     private void startGroupPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID) {
-        trace("startGroupPoll BEGIN");
         String cmd = String.format("poll %s,G,%s,D,1,0,5", OCEANREGION, DNID);
         trace(cmd);
-
         try {
             functions.write(cmd, out);
             String status = functions.readUntil("Text:", input);
@@ -85,33 +71,11 @@ public class Dev {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        trace("startGroupPoll END");
-    }
-
-    private void startIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID, String MEMBER) {
-        trace("startIndividualPoll BEGIN");
-        String cmd = String.format("poll %s,I,%s,D,1,%s,5", OCEANREGION, DNID, MEMBER);
-        trace(cmd);
-
-        try {
-            functions.write(cmd, out);
-            String status = functions.readUntil("Text:", input);
-            functions.write(".s", out);
-            status = functions.readUntil(">", input);
-            status = toReferenceNumber(status);
-            trace("Reference number : " + status);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        trace("startIndividualPoll END");
     }
 
     private void configGroupPoll(BufferedInputStream input, PrintStream out, int startHour, int startMinute, String OCEANREGION, String DNID) {
-        trace("configGroupPoll BEGIN");
-
-        String STARTFRAME = calcStartFrame(startHour,startMinute);
-
-        String cmd = String.format("poll %s,G,%s,N,1,0,  4,,%s,24", OCEANREGION, DNID, STARTFRAME);
+        String STARTFRAME = calcStartFrame(startHour, startMinute);
+        String cmd = String.format("poll %s,G,%s,N,1,0,4,,%s,24", OCEANREGION, DNID, STARTFRAME);
         trace(cmd);
         try {
             functions.write(cmd, out);
@@ -123,14 +87,10 @@ public class Dev {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        trace("configGroupPoll END");
     }
 
-    private void configIndividualPoll(BufferedInputStream input, PrintStream out,  int startHour, int startMinute, String OCEANREGION, String DNID, String MEMBER) {
-        trace("configIndividualPoll BEGIN");
-        String STARTFRAME = calcStartFrame(startHour,startMinute);
-
-        String cmd = String.format("poll %s,I,%s,N,1,%S,4,,%s,24", OCEANREGION,DNID, MEMBER, STARTFRAME);
+    private void stopIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID, String SATELLITE_NUMBER) {
+        String cmd = String.format("poll %s,I,%s,N,1,%s,6", OCEANREGION, DNID, SATELLITE_NUMBER);
         trace(cmd);
         try {
             functions.write(cmd, out);
@@ -142,57 +102,69 @@ public class Dev {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        trace("configIndividualPoll END");
     }
 
-
-    private String toReferenceNumber(String response) {
-
-        int pos = response.indexOf("number");
-        String s = "";
-        if (pos < 0) return response;
-        s = response.substring(pos);
-        return s.replaceAll("[^0-9]", ""); // returns 123
+    private void startIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID, String SATELLITE_NUMBER) {
+        String cmd = String.format("poll %s,I,%s,D,1,%s,5", OCEANREGION, DNID, SATELLITE_NUMBER);
+        trace(cmd);
+        try {
+            functions.write(cmd, out);
+            String status = functions.readUntil("Text:", input);
+            functions.write(".s", out);
+            status = functions.readUntil(">", input);
+            status = toReferenceNumber(status);
+            trace("Reference number : " + status);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void developConfigPolls(BufferedInputStream input, PrintStream output) {
+    private void configIndividualPoll(BufferedInputStream input, PrintStream out, int startHour, int startMinute, String OCEANREGION, String DNID, String SATELLITE_NUMBER) {
+        String STARTFRAME = calcStartFrame(startHour, startMinute);
+        String cmd = String.format("poll %s,I,%s,N,1,%S,4,,%s,300", OCEANREGION, DNID, SATELLITE_NUMBER, STARTFRAME);
+        trace(cmd);
+        try {
+            functions.write(cmd, out);
+            String status = functions.readUntil("Text:", input);
+            functions.write(".s", out);
+            status = functions.readUntil(">", input);
+            status = toReferenceNumber(status);
+            trace("Reference number : " + status);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void execute(BufferedInputStream input, PrintStream output) {
 
         String DNID = "10745";
-        //    String DNID = "10890";
-        String MEMBER = "426642710";
-        String OCEANREGION = "2";
+        String SATELLITE_NUMBER = "426509712";
+        String OCEANREGION = "3";
 
-        boolean group = true;
-        boolean individual = !group ;
+        boolean individual = true;
 
-        if (group) {
-            stopGroupPoll(input, output,OCEANREGION,DNID);
-            configGroupPoll(input, output,13,28,OCEANREGION,DNID);
-            startGroupPoll(input, output,OCEANREGION,DNID);
-            stopGroupPoll(input, output,OCEANREGION,DNID);
-        }
-
-        if (individual) {
-            stopIndividualPoll(input, output,OCEANREGION,DNID,MEMBER);
-            configIndividualPoll(input, output,13,28, OCEANREGION,DNID,MEMBER);
-            startIndividualPoll(input, output,OCEANREGION,DNID,MEMBER);
-            stopIndividualPoll(input, output,OCEANREGION,DNID,MEMBER);
+        if (individual) {  // individual
+            stopIndividualPoll(input, output, OCEANREGION, DNID, SATELLITE_NUMBER);
+            configIndividualPoll(input, output, 13, 12, OCEANREGION, DNID, SATELLITE_NUMBER);
+            startIndividualPoll(input, output, OCEANREGION, DNID, SATELLITE_NUMBER);
+            //stopIndividualPoll(input, output,OCEANREGION,DNID,MEMBER);
+        } else {
+            stopGroupPoll(input, output, OCEANREGION, DNID);
+            configGroupPoll(input, output, 13, 28, OCEANREGION, DNID);
+            startGroupPoll(input, output, OCEANREGION, DNID);
+            //stopGroupPoll(input, output,OCEANREGION,DNID);
         }
 
 
         trace("Ready");
-
-
     }
 
     private void go() {
 
         String host = "148.122.32.20";
         int port = 23;
-        String name = "XXXXX";
-        String pwd = "XXXX";
-
-
+        String name = "xxx";
+        String pwd = "xxx";
 
         trace(host + " " + port);
         trace(name);
@@ -211,7 +183,7 @@ public class Dev {
             functions.sendPwd(output, pwd);
             functions.readUntil(">", input);
             LOGGER.info("Logged in");
-            developConfigPolls(input, output);
+            execute(input, output);
         } catch (Throwable t) {
             LOGGER.error(t.toString(), t);
         } finally {
