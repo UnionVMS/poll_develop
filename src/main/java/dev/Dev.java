@@ -119,9 +119,9 @@ public class Dev {
         }
     }
 
-    private void configIndividualPoll(BufferedInputStream input, PrintStream out, int startHour, int startMinute, String OCEANREGION, String DNID, String SATELLITE_NUMBER) {
+    private void configIndividualPoll(BufferedInputStream input, PrintStream out, int startHour, int startMinute, String OCEANREGION, String DNID, String SATELLITE_NUMBER, String REPORTS_PER_24_HOUR) {
         String STARTFRAME = calcStartFrame(startHour, startMinute);
-        String cmd = String.format("poll %s,I,%s,N,1,%S,4,,%s,300", OCEANREGION, DNID, SATELLITE_NUMBER, STARTFRAME);
+        String cmd = String.format("poll %s,I,%s,N,1,%S,4,,%s,%s", OCEANREGION, DNID, SATELLITE_NUMBER, STARTFRAME, REPORTS_PER_24_HOUR);
         trace(cmd);
         try {
             functions.write(cmd, out);
@@ -139,16 +139,19 @@ public class Dev {
 
         String DNID = "10745";
         String SATELLITE_NUMBER = "426509712";
-        String OCEANREGION = "3";
+
+        String REPORTS_PER_24_HOUR = "96";
 
         boolean individual = true;
 
         if (individual) {  // individual
+            String OCEANREGION = "3";
             stopIndividualPoll(input, output, OCEANREGION, DNID, SATELLITE_NUMBER);
-            configIndividualPoll(input, output, 13, 12, OCEANREGION, DNID, SATELLITE_NUMBER);
+            configIndividualPoll(input, output, 8, 15, OCEANREGION, DNID, SATELLITE_NUMBER, REPORTS_PER_24_HOUR);
             startIndividualPoll(input, output, OCEANREGION, DNID, SATELLITE_NUMBER);
             //stopIndividualPoll(input, output,OCEANREGION,DNID,MEMBER);
         } else {
+            String OCEANREGION = "3";
             stopGroupPoll(input, output, OCEANREGION, DNID);
             configGroupPoll(input, output, 13, 28, OCEANREGION, DNID);
             startGroupPoll(input, output, OCEANREGION, DNID);
@@ -163,7 +166,7 @@ public class Dev {
 
         String host = "148.122.32.20";
         int port = 23;
-        String name = "xxx";
+        String name = "xxxx";
         String pwd = "xxx";
 
         trace(host + " " + port);
