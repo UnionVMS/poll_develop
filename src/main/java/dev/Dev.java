@@ -187,33 +187,76 @@ public class Dev {
         }
     }
 
+    private void scan(BufferedInputStream input, PrintStream out, String from_YYMMDD, String to_YYMMDD) {
+
+        String cmd = String.format("scan -u ");
+        trace(cmd);
+        try {
+            functions.write(cmd, out);
+            String status = functions.readUntil("Text:", input);
+            functions.write(".s", out);
+            status = functions.readUntil(">", input);
+            status = toReferenceNumber(status);
+            trace("Reference number : " + status);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
     private void execute(BufferedInputStream input, PrintStream output) {
 
         String DNID = "10745";
         String SATELLITE_NUMBER = "426509712";
+        String OCEANREGION = "3";
 
 //        String EVERY_HOUR = "24"; // every hour
 //        String TWO_PER__HOUR = "48"; // 2 per hour
         String EVERY_15_MINUTES = "96"; // every quarter
 //        String EVERY_7_AND_HALF_MINUTES = "192"; // every  7.5 minutes
 
-        boolean individual = true;
+        final int INDIVIDUAL = 0;
+        final int GROUP = 1;
+        final  int CHANGE_DNID_MEMBER = 2;
+        final  int GET_INFO = 3;
+        final  int SCAN = 4;
 
-        if (individual) {  // individual
-            String OCEANREGION = "3";
-            stopIndividualPoll(input, output, OCEANREGION, DNID, SATELLITE_NUMBER);
-            configIndividualPoll(input, output, 9, 30, OCEANREGION, DNID, SATELLITE_NUMBER, EVERY_15_MINUTES);
-            startIndividualPoll(input, output, OCEANREGION, DNID, SATELLITE_NUMBER);
-            //stopIndividualPoll(input, output,OCEANREGION,DNID,MEMBER);
-        } else {
-            String OCEANREGION = "3";
-            stopGroupPoll(input, output, OCEANREGION, DNID);
-            configGroupPoll(input, output, 13, 28, OCEANREGION, DNID);
-            startGroupPoll(input, output, OCEANREGION, DNID);
-            //stopGroupPoll(input, output,OCEANREGION,DNID);
+        int WHAT_TO_TEST = SCAN;
+
+
+        switch(WHAT_TO_TEST){
+
+            case INDIVIDUAL :
+                stopIndividualPoll(input, output, OCEANREGION, DNID, SATELLITE_NUMBER);
+                configIndividualPoll(input, output, 9, 30, OCEANREGION, DNID, SATELLITE_NUMBER, EVERY_15_MINUTES);
+                startIndividualPoll(input, output, OCEANREGION, DNID, SATELLITE_NUMBER);
+                //stopIndividualPoll(input, output,OCEANREGION,DNID,MEMBER);
+                break;
+            case GROUP :
+                stopGroupPoll(input, output, OCEANREGION, DNID);
+                configGroupPoll(input, output, 13, 28, OCEANREGION, DNID);
+                startGroupPoll(input, output, OCEANREGION, DNID);
+                //stopGroupPoll(input, output,OCEANREGION,DNID);
+                break;
+            case CHANGE_DNID_MEMBER : {
+
+                String TO_DNID = DNID;
+                String TO_MEMBERNUMBER = "254";
+                connectShipToDnidAndMember(input, output, OCEANREGION, TO_DNID, SATELLITE_NUMBER, TO_MEMBERNUMBER);
+                break;
+            }
+            case SCAN : {
+
+                scan(input, output,  "191001","191002");
+                break;
+            }
+            case GET_INFO : {
+                getReports(input, output, OCEANREGION,  DNID);
+                break;
+            }
         }
-
-
         trace("Ready");
     }
 
@@ -230,8 +273,8 @@ public class Dev {
 
         String host = "148.122.32.20";
         int port = 23;
-        String name = "xxx";
-        String pwd = "xxx";
+        String name = "xxxx";
+        String pwd = "xxxx";
 
         trace(host + " " + port);
         trace(name);
