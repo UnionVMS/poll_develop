@@ -119,21 +119,6 @@ public class Dev {
     }
 
 
-    private void getReports(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID) {
-
-        String cmd = String.format("poll %s,G,%s,D,0,0,0", OCEANREGION, DNID);
-        trace(cmd);
-        try {
-            functions.write(cmd, out);
-            String status = functions.readUntil("Text:", input);
-            functions.write(".s", out);
-            status = functions.readUntil(">", input);
-            status = toReferenceNumber(status);
-            trace("Reference number : " + status);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     private void configIndividualPoll(BufferedInputStream input, PrintStream out, int startHour, int startMinute, String OCEANREGION, String DNID, String SATELLITE_NUMBER, String FREQUENCY) {
         String STARTFRAME = calcStartFrame(startHour, startMinute);
@@ -151,6 +136,56 @@ public class Dev {
         }
     }
 
+
+    /**
+     * Yes, C-number, satellite number, terminal, terminal  number etc  is the same – sorry that I use different name on the equipment. .
+     * A C-number contain of nine digit :4xxxxxxxx
+     * -	The first digit is always 4 as long as this is a C-terminal
+     * -	The tree next digits shall indicate if this is a maritime or land mobile C-number and also country (e.g. Sweden)
+     * -	The tree next digits  is part of ship identity
+     * -	The two last digits indicate the c-mobile on this specific ship.
+     * @param input
+     * @param out
+     * @param OCEANREGION
+     * @param TO_DNID
+     * @param SATELLITE_NUMBER
+     * @param TO_MEMBERNUMBER
+     */
+
+    private void connectShipToDnidAndMember(BufferedInputStream input, PrintStream out, String OCEANREGION, String TO_DNID, String SATELLITE_NUMBER, String TO_MEMBERNUMBER) {
+        // example :    connect ship 482380001 to DNID 123 as member number 1:
+        // example :    poll  1,I,123,N,0,482380001,10,1
+        String cmd = String.format("poll  %s,I,%s,N,0,%s,10,%s", OCEANREGION, TO_DNID, SATELLITE_NUMBER, TO_MEMBERNUMBER);
+        trace(cmd);
+        try {
+            functions.write(cmd, out);
+            String status = functions.readUntil("Text:", input);
+            functions.write(".s", out);
+            status = functions.readUntil(">", input);
+            status = toReferenceNumber(status);
+            trace("Reference number : " + status);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+        private void getReports(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID) {
+
+        String cmd = String.format("poll %s,G,%s,D,0,0,0", OCEANREGION, DNID);
+        trace(cmd);
+        try {
+            functions.write(cmd, out);
+            String status = functions.readUntil("Text:", input);
+            functions.write(".s", out);
+            status = functions.readUntil(">", input);
+            status = toReferenceNumber(status);
+            trace("Reference number : " + status);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private void execute(BufferedInputStream input, PrintStream output) {
 
@@ -195,8 +230,8 @@ public class Dev {
 
         String host = "148.122.32.20";
         int port = 23;
-        String name = "xxx";
-        String pwd = "xxx";
+        String name = "E32886SE";
+        String pwd = "4557";
 
         trace(host + " " + port);
         trace(name);
