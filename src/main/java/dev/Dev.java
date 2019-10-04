@@ -230,8 +230,8 @@ public class Dev {
 
         String host = "148.122.32.20";
         int port = 23;
-        String name = "E32886SE";
-        String pwd = "4557";
+        String name = "xxx";
+        String pwd = "xxx";
 
         trace(host + " " + port);
         trace(name);
