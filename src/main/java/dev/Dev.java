@@ -16,6 +16,18 @@ public class Dev {
         System.out.println(str);
     }
 
+
+    private String numberOfReportsPer24Hours(int numberOfReportsPer24Hours){
+
+        double minutesInADay = 1440.0d;
+        if ((numberOfReportsPer24Hours < 0) || (numberOfReportsPer24Hours > 500)) {
+            throw new IllegalArgumentException("NumberOfReportsPer24Hours must be between 0 and 500. Was " + numberOfReportsPer24Hours);
+        }
+        int res = (int) minutesInADay / numberOfReportsPer24Hours;
+        return String.valueOf(res);
+    }
+
+
     private String toReferenceNumber(String response) {
 
         int pos = response.indexOf("number");
@@ -222,8 +234,9 @@ public class Dev {
         final  int CHANGE_DNID_MEMBER = 2;
         final  int GET_INFO = 3;
         final  int SCAN = 4;
+        final  int NUMBER_OF_REPORTS_PER_24_HOUR = 5;
 
-        int WHAT_TO_TEST = SCAN;
+        int WHAT_TO_TEST = NUMBER_OF_REPORTS_PER_24_HOUR;
 
 
         switch(WHAT_TO_TEST){
@@ -241,19 +254,21 @@ public class Dev {
                 //stopGroupPoll(input, output,OCEANREGION,DNID);
                 break;
             case CHANGE_DNID_MEMBER : {
-
                 String TO_DNID = DNID;
                 String TO_MEMBERNUMBER = "254";
                 connectShipToDnidAndMember(input, output, OCEANREGION, TO_DNID, SATELLITE_NUMBER, TO_MEMBERNUMBER);
                 break;
             }
             case SCAN : {
-
                 scan(input, output,  "191001","191002");
                 break;
             }
             case GET_INFO : {
                 getReports(input, output, OCEANREGION,  DNID);
+                break;
+            }
+            case NUMBER_OF_REPORTS_PER_24_HOUR : {
+                trace(numberOfReportsPer24Hours(24));
                 break;
             }
         }
@@ -273,8 +288,8 @@ public class Dev {
 
         String host = "148.122.32.20";
         int port = 23;
-        String name = "xxxx";
-        String pwd = "xxxx";
+        String name = "xxx";
+        String pwd = "xxx";
 
         trace(host + " " + port);
         trace(name);
