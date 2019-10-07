@@ -23,7 +23,9 @@ public class Dev {
         if ((numberOfReportsPer24Hours < 0) || (numberOfReportsPer24Hours > 500)) {
             throw new IllegalArgumentException("NumberOfReportsPer24Hours must be between 0 and 500. Was " + numberOfReportsPer24Hours);
         }
-        int res = (int) minutesInADay / numberOfReportsPer24Hours;
+
+        double minutes = minutesInADay / numberOfReportsPer24Hours;
+        int res = (int) Math.round(minutes);
         return String.valueOf(res);
     }
 
