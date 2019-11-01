@@ -173,7 +173,6 @@ public class InmarsatClientService {
 			functions.readUntil("word:", input);
 			functions.sendPwd(output, pwd);
 			functions.readUntil(">", input);
-			LOGGER.info("Logged in");
 		} catch (Throwable t) {
 			return t.toString();
 		} finally {
