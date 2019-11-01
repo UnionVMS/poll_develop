@@ -3,3 +3,6 @@ target
 logging.properties
 rest/src/main/webapp/apidocs/
 **/.idea
+.classpath
+.project
+.settings
