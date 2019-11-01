@@ -115,17 +115,8 @@ public class InmarsatClientService {
 		}
 	}
 
-	public void go(int function, String DNID, String MEMBER, String OCEAN_REGION, String ADDRESS, int hour, int minute,
+	public void go(String host, int port, String name, String pwd, int function, String DNID, String MEMBER, String OCEAN_REGION, String ADDRESS, int hour, int minute,
 			int numberOfReportsPer24Hours) {
-
-		String host = "148.122.32.20";
-		int port = 23;
-		String name = "E32886SE";
-		String pwd = "xxxx";
-
-		trace(host + " " + port);
-		trace(name);
-		trace(pwd);
 
 		Socket socket = null;
 		PrintStream output = null;
@@ -158,6 +149,47 @@ public class InmarsatClientService {
 				}
 			}
 		}
+	}
+
+	public String testLogin(String host, String port, String name, String pwd) {
+		String ret = "LOGIN SUCCESSFUL";
+
+		int p = 23;
+		try {
+			p = Integer.parseInt(port);
+		} catch (NumberFormatException e) {
+				return "port must be numeric";
+		}
+		
+		Socket socket = null;
+		PrintStream output = null;
+		try {
+			socket = new Socket(host, p);
+			// logon
+			BufferedInputStream input = new BufferedInputStream(socket.getInputStream());
+			output = new PrintStream(socket.getOutputStream());
+			functions.readUntil("name:", input);
+			functions.write(name, output);
+			functions.readUntil("word:", input);
+			functions.sendPwd(output, pwd);
+			functions.readUntil(">", input);
+			LOGGER.info("Logged in");
+		} catch (Throwable t) {
+			return t.toString();
+		} finally {
+			if (output != null) {
+				output.print("QUIT \r\n");
+				output.flush();
+			}
+			if ((socket != null) && (socket.isConnected())) {
+				try {
+					socket.close();
+				} catch (IOException e) {
+					// OK
+				}
+			}
+		}
+		return ret;
 	}
 
 	private void execute(BufferedInputStream input, PrintStream output, int function, String DNID, String MEMBER,
