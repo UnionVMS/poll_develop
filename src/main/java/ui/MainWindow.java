@@ -175,7 +175,13 @@ public class MainWindow {
 		
 		ctl_address = new Text(shell, SWT.BORDER);
 		ctl_address.setBounds(10, 85, 173, 23);
-
+		
+		// descent defaults
+		dnid_list.select(0);
+		ctl_member.setText("255");
+		ocean_region.select(3);
+		ctl_reports_per_24.setText("48");
+		ctl_address.setText("426509712");
 	}
 
 	private boolean chkInput() {
