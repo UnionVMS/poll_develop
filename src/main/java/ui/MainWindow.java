@@ -91,18 +91,18 @@ public class MainWindow {
 		lblMember.setText("Member");
 
 		lblHour = new Label(shell, SWT.NONE);
-		lblHour.setBounds(10, 115, 55, 15);
-		lblHour.setText("Hour");
+		lblHour.setBounds(10, 90, 55, 15);
+		lblHour.setText("Hour : ");
 
 		lblMinute = new Label(shell, SWT.NONE);
-		lblMinute.setBounds(113, 115, 55, 15);
-		lblMinute.setText("Minute");
+		lblMinute.setBounds(10, 114, 55, 15);
+		lblMinute.setText("Minute : ");
 
 		ctl_hour = new Text(shell, SWT.BORDER);
-		ctl_hour.setBounds(10, 136, 76, 23);
+		ctl_hour.setBounds(71, 87, 76, 23);
 
 		ctl_minute = new Text(shell, SWT.BORDER);
-		ctl_minute.setBounds(113, 136, 76, 23);
+		ctl_minute.setBounds(71, 114, 76, 23);
 
 		Button btnStop = new Button(shell, SWT.NONE);
 		btnStop.addSelectionListener(new SelectionAdapter() {
@@ -171,10 +171,10 @@ public class MainWindow {
 		
 		Label lblAddress = new Label(shell, SWT.NONE);
 		lblAddress.setBounds(10, 64, 55, 15);
-		lblAddress.setText("Address");
+		lblAddress.setText("Address :");
 		
 		ctl_address = new Text(shell, SWT.BORDER);
-		ctl_address.setBounds(10, 85, 173, 23);
+		ctl_address.setBounds(71, 60, 173, 23);
 		
 		// descent defaults
 		dnid_list.select(0);
