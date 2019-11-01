@@ -213,7 +213,7 @@ public class MainWindow {
 		ctl_ip.setText("148.122.32.20");
 		ctl_port.setText("23");
 		ctl_user.setText("E32886SE");
-		ctl_pwd.setText("4557");
+		//ctl_pwd.setText("DONALD_DUCK");
 	}
 
 	private boolean chkInput() {
