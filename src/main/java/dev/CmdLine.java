@@ -6,7 +6,6 @@ public class CmdLine {
 
 	}
 
-	
 	public CmdLine(String function, String dnid, String member, String oceanRegion, String address) {
 		super();
 		this.function = function;
@@ -14,8 +13,9 @@ public class CmdLine {
 		this.member = member;
 		this.oceanRegion = oceanRegion;
 		this.address = address;
-		this.startframe = "";
-		this.frequency = "";
+		this.hour = null;
+		this.minute = null;
+		this.reportsper24 = null;
 		this.referenceNumber = "";
 	}
 
@@ -24,8 +24,24 @@ public class CmdLine {
 	public String member = "";
 	public String oceanRegion = "";
 	public String address = "";
-	public String startframe = "";
-	public String  frequency = "";
+	public Integer hour = null;
+	public Integer minute = null;
+	public Integer reportsper24 = null;
 	public String referenceNumber = "";
+
+	public String getOceanRegion() {
+
+		switch (oceanRegion) {
+		case "0":
+			return "AOR-W";
+		case "1":
+			return "AOR-E";
+		case "2":
+			return "POR";
+		case "3":
+			return "IOR";
+		}
+		return "IOR";
+	}
 
 }

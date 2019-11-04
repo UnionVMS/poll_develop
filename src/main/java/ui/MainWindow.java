@@ -12,11 +12,15 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import dev.CmdLine;
 import dev.InmarsatClientService;
 
 public class MainWindow {
 
 	private InmarsatClientService dev = new InmarsatClientService();
+	private ObjectMapper MAPPER = new ObjectMapper();
 
 	private static final int STOP = 0;
 	private static final int CONFIG = 1;
@@ -206,12 +210,25 @@ public class MainWindow {
 		commandlist.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
-				
+
+				int[] selectedItems = commandlist.getSelectionIndices();
+				for (int loopIndex = 0; loopIndex < selectedItems.length; loopIndex++) {
+					int idx = selectedItems[loopIndex];
+					String aJson = commandlist.getItem(idx);
+
+					try {
+						CmdLine cmdLine = MAPPER.readValue(aJson, CmdLine.class);
+						setFormData(cmdLine);
+					} catch (Exception e1) {
+						infolist.add(e1.toString());
+					}
+					break;
+				}
 			}
+
 		});
 		commandlist.setBounds(10, 242, 580, 119);
-		
+
 		dev.readFile();
 
 		// descent defaults
@@ -225,6 +242,53 @@ public class MainWindow {
 		ctl_user.setText("E32886SE");
 		ctl_pwd.setText("DONALD_DUCK");
 
+	}
+
+	private void setFormData(CmdLine cmdLine) {
+
+		{ // DNID
+			boolean foundDnidInList = false;
+			String dn = cmdLine.dnid;
+			int n = dnid_list.getItemCount();
+			dnid_list.clearSelection();
+			for (int i = 0; i < n; i++) {
+				String str = dnid_list.getItem(i);
+				if (str.endsWith(dn)) {
+					dnid_list.select(i);
+					foundDnidInList = true;
+				}
+			}
+			if (!foundDnidInList) {
+				dnid_list.add(dn);
+			}
+		}
+
+		// MEMBER
+		ctl_member.setText(cmdLine.member);
+
+		{ // OCEANREGION
+			String or = cmdLine.getOceanRegion();
+			int n = ocean_region.getItemCount();
+			ocean_region.clearSelection();
+			for (int i = 0; i < n; i++) {
+				String str = ocean_region.getItem(i);
+				if (str.endsWith(or)) {
+					ocean_region.select(i);
+				}
+			}
+		}
+		// ADDRESS
+		ctl_address.setText(cmdLine.address);
+
+		if (cmdLine.reportsper24 != null) {
+			ctl_reports_per_24.setText(String.valueOf(cmdLine.reportsper24));
+		}
+		if (cmdLine.hour != null) {
+			ctl_hour.setText(String.valueOf(cmdLine.hour));
+		}
+		if (cmdLine.minute != null) {
+			ctl_minute.setText(String.valueOf(cmdLine.minute));
+		}
 	}
 
 	private boolean chkInput() {
@@ -417,8 +481,7 @@ public class MainWindow {
 		case "IOR":
 			return "3";
 		}
-
-		return "IOR";
+		return "3";
 	}
 
 	public void addToInfoList(String str) {

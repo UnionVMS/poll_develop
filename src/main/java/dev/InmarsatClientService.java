@@ -24,7 +24,7 @@ public class InmarsatClientService {
 	private static final int CONFIG = 1;
 	private static final int START = 2;
 
-	ObjectMapper MAPPER = new ObjectMapper();
+	private ObjectMapper MAPPER = new ObjectMapper();
 
 	private MainWindow parent;
 
@@ -116,13 +116,20 @@ public class InmarsatClientService {
 	}
 
 	private boolean configIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID,
-			String ADDRESS, String MEMBER_NUMBER, String STARTFRAME, String FREQUENCY) {
+			String ADDRESS, String MEMBER_NUMBER, Integer hour,Integer minute, Integer reportsper24) {
 
 		CmdLine cmdLine = new CmdLine("START", DNID, MEMBER_NUMBER, OCEANREGION, ADDRESS);
-		cmdLine.startframe = STARTFRAME;
-		cmdLine.frequency = FREQUENCY;
+		cmdLine.hour = hour;
+		cmdLine.minute = minute;
+		cmdLine.reportsper24 = reportsper24;
+		
+		int iStartFrame = calcStartFrame(hour, minute);
+		String STARTFRAME = String.valueOf(iStartFrame);
+		String REPORTS_PER_24 = numberOfReportsPer24Hours(reportsper24);
+
+		
 		String cmd = String.format("poll %s,I,%s,N,1,%s,4,%s,%s,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER,
-				STARTFRAME, FREQUENCY);
+				STARTFRAME, REPORTS_PER_24);
 		parent.addToCommandList(cmd);
 		try {
 			functions.write(cmd, out);
@@ -221,8 +228,6 @@ public class InmarsatClientService {
 	private void execute(BufferedInputStream input, PrintStream output, int function, String DNID, String MEMBER,
 			String OCEAN_REGION, String ADDRESS, int hour, int minute, int numberOfReportsPer24Hours) {
 
-		String START_FRAME = String.valueOf(calcStartFrame(hour, minute));
-		String REPORTS_PER_24 = numberOfReportsPer24Hours(numberOfReportsPer24Hours);
 
 		switch (function) {
 		case STOP:
@@ -230,7 +235,7 @@ public class InmarsatClientService {
 			}
 			break;
 		case CONFIG:
-			if (configIndividualPoll(input, output, OCEAN_REGION, DNID, ADDRESS, MEMBER, START_FRAME, REPORTS_PER_24)) {
+			if (configIndividualPoll(input, output, OCEAN_REGION, DNID, ADDRESS, MEMBER, hour,minute, numberOfReportsPer24Hours)) {
 			}
 			break;
 		case START:
