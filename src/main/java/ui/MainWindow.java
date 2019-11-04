@@ -77,7 +77,7 @@ public class MainWindow {
 		dev.setParent(this);
 
 		shell = new Shell();
-		shell.setSize(451, 415);
+		shell.setSize(616, 516);
 		shell.setText("Inmarsat Report Config");
 
 		dnid_list = new Combo(shell, SWT.NONE);
@@ -119,7 +119,7 @@ public class MainWindow {
 
 			}
 		});
-		btnStop.setBounds(350, 59, 75, 25);
+		btnStop.setBounds(515, 56, 75, 25);
 		btnStop.setText("Stop");
 
 		Button btnConfig = new Button(shell, SWT.NONE);
@@ -131,7 +131,7 @@ public class MainWindow {
 				execute(CONFIG);
 			}
 		});
-		btnConfig.setBounds(350, 90, 75, 25);
+		btnConfig.setBounds(515, 87, 75, 25);
 		btnConfig.setText("Config");
 
 		Button btnStart = new Button(shell, SWT.NONE);
@@ -143,14 +143,14 @@ public class MainWindow {
 				execute(START);
 			}
 		});
-		btnStart.setBounds(350, 121, 75, 25);
+		btnStart.setBounds(515, 118, 75, 25);
 		btnStart.setText("Start");
 
 		Label label = new Label(shell, SWT.SEPARATOR | SWT.VERTICAL);
-		label.setBounds(342, 34, 2, 189);
+		label.setBounds(507, 31, 2, 189);
 
 		Label label_1 = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
-		label_1.setBounds(10, 229, 411, 2);
+		label_1.setBounds(10, 226, 580, 5);
 
 		Label lblOceanRegion = new Label(shell, SWT.NONE);
 		lblOceanRegion.setBounds(189, 10, 85, 15);
@@ -196,14 +196,21 @@ public class MainWindow {
 				testConnect();
 			}
 		});
-		btnTestconnect.setBounds(350, 198, 75, 25);
+		btnTestconnect.setBounds(515, 195, 75, 25);
 		btnTestconnect.setText("TestConnect");
 
-		infolist = new List(shell, SWT.BORDER | SWT.V_SCROLL);
-		infolist.setBounds(10, 307, 411, 59);
+		infolist = new List(shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		infolist.setBounds(10, 365, 580, 102);
 
-		commandlist = new List(shell, SWT.BORDER | SWT.V_SCROLL);
-		commandlist.setBounds(10, 242, 411, 59);
+		commandlist = new List(shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		commandlist.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				
+			}
+		});
+		commandlist.setBounds(10, 242, 580, 119);
 		
 		dev.readFile();
 
