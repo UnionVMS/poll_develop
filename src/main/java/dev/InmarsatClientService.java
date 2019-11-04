@@ -8,18 +8,20 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ui.MainWindow;
 
 public class InmarsatClientService {
-	private static Logger LOGGER = LoggerFactory.getLogger(InmarsatClientService.class);
 	private Functions functions = new Functions();
 	private static final int STOP = 0;
 	private static final int CONFIG = 1;
 	private static final int START = 2;
 
-	private void trace(String str) {
-		LOGGER.info(str);
+	private MainWindow parent;
+
+	public void setParent(MainWindow parent) {
+		this.parent = parent;
+		functions.setParent(parent);
+		
 	}
 
 	private String numberOfReportsPer24Hours(int numberOfReportsPer24Hours) {
@@ -67,32 +69,32 @@ public class InmarsatClientService {
 			String ADDRESS, String MEMBER_NUMBER) {
 
 		String cmd = String.format("poll %s,I,%s,N,1,%s,6,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER);
-		trace(cmd);
+		parent.addToCommandList(cmd);
 		try {
 			functions.write(cmd, out);
 			String status = functions.readUntil("Text:", input);
 			functions.write(".s", out);
 			status = functions.readUntil(">", input);
 			status = toReferenceNumber(status);
-			trace("Reference number : " + status);
+			parent.addToCommandList("Reference number : " + status);
 		} catch (Exception e) {
-			e.printStackTrace();
+			parent.addToInfoList(e.toString());
 		}
 	}
 
 	private void startIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID,
 			String ADDRESS, String MEMBER_NUMBER) {
 		String cmd = String.format("poll %s,I,%s,N,1,%s,5,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER);
-		trace(cmd);
+		parent.addToCommandList(cmd);
 		try {
 			functions.write(cmd, out);
 			String status = functions.readUntil("Text:", input);
 			functions.write(".s", out);
 			status = functions.readUntil(">", input);
 			status = toReferenceNumber(status);
-			trace("Reference number : " + status);
+			parent.addToCommandList("Reference number : " + status);
 		} catch (Exception e) {
-			e.printStackTrace();
+			parent.addToInfoList(e.toString());
 		}
 	}
 
@@ -101,22 +103,21 @@ public class InmarsatClientService {
 
 		String cmd = String.format("poll %s,I,%s,N,1,%s,4,%s,%s,%s", OCEANREGION, DNID, ADDRESS, MEMBERNUMBER,
 				STARTFRAME, FREQUENCY);
-
-		trace(cmd);
+		parent.addToCommandList(cmd);
 		try {
 			functions.write(cmd, out);
 			String status = functions.readUntil("Text:", input);
 			functions.write(".s", out);
 			status = functions.readUntil(">", input);
 			status = toReferenceNumber(status);
-			trace("Reference number : " + status);
+			parent.addToCommandList("Reference number : " + status);
 		} catch (Exception e) {
-			e.printStackTrace();
+			parent.addToInfoList(e.toString());
 		}
 	}
 
-	public void go(String host, int port, String name, String pwd, int function, String DNID, String MEMBER, String OCEAN_REGION, String ADDRESS, int hour, int minute,
-			int numberOfReportsPer24Hours) {
+	public void go(String host, int port, String name, String pwd, int function, String DNID, String MEMBER,
+			String OCEAN_REGION, String ADDRESS, int hour, int minute, int numberOfReportsPer24Hours) {
 
 		Socket socket = null;
 		PrintStream output = null;
@@ -130,16 +131,16 @@ public class InmarsatClientService {
 			functions.readUntil("word:", input);
 			functions.sendPwd(output, pwd);
 			functions.readUntil(">", input);
-			LOGGER.info("Logged in");
+			parent.addToInfoList("LOGGED IN");
 			execute(input, output, function, DNID, MEMBER, OCEAN_REGION, ADDRESS, hour, minute,
 					numberOfReportsPer24Hours);
 		} catch (Throwable t) {
-			LOGGER.error(t.toString(), t);
+			parent.addToInfoList(t.toString());
 		} finally {
 			if (output != null) {
 				output.print("QUIT \r\n");
 				output.flush();
-				LOGGER.info("Logged out");
+				parent.addToInfoList("LOGGED OUT");
 			}
 			if ((socket != null) && (socket.isConnected())) {
 				try {
@@ -158,9 +159,10 @@ public class InmarsatClientService {
 		try {
 			p = Integer.parseInt(port);
 		} catch (NumberFormatException e) {
-				return "port must be numeric";
+			parent.addToInfoList("port must be numeric");
+			return "port must be numeric";
 		}
-		
+
 		Socket socket = null;
 		PrintStream output = null;
 		try {
@@ -174,6 +176,7 @@ public class InmarsatClientService {
 			functions.sendPwd(output, pwd);
 			functions.readUntil(">", input);
 		} catch (Throwable t) {
+			parent.addToInfoList(t.toString());
 			return t.toString();
 		} finally {
 			if (output != null) {

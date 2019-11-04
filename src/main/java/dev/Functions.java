@@ -10,106 +10,46 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
-import org.apache.commons.net.telnet.TelnetClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ui.MainWindow;
 
 public class Functions {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(Functions.class);
-
-	private static final String[] faultPatterns = {
-			"Illegal poll type parameter",
-			"????????",
-			"[Connection to 41424344 aborted: error status 0]",
-			"Illegal address parameter.",
+	private static final String[] faultPatterns = { "Illegal poll type parameter", "????????",
+			"[Connection to 41424344 aborted: error status 0]", "Illegal address parameter.",
 			"Failed: Cannot reach the mobile",
 
-			"Cannot reach the mobile",
-			"Cannot reach the mobile(s)",
-			"No legal address",
-			"No data to send",
-			"Number of bytes too large",
-			"Time string longer than the allowed 39 characters",
-			"No DNID file found",
-			"Passwords doesn't match",
-			"Illegal ocean region parameter",
-			"No DNID in mobile's ocean region",
-			"Mobile not in ocean region",
-			"Illegal field value",
-			"Memory shortage",
-			"Messagestore full",
-			"Unknown type of address",
-			"Illegal address",
-			"Illegal repetition code",
-			"Illegal poll type",
-			"Sequencenumber table is full",
-			"Option not supported",
-			"User is barred",
-			"Network is barred",
-			"Service is barred",
-			"Unknown DNID",
-			"Illegal destination",
-			"Onestage access is barred",
-			"Twostage access is barred",
-			"Unknown mailbox",
-			"DNID file is full",
-			"DNID file is empty",
-			"Unknown message",
-			"Unknown ENID",
-			"No matching message",
-			"Message is being processed. Try again later",
-			"Message has been rerouted",
-			"Message cannot be deleted",
-			"Unknown user",
-			"Update of userinformation failed",
-			"Message has been delivered",
-			"Message has been aborted",
-			"Message has been deleted",
-			"To much data, please be more specific",
-			"No message(s)",
-			"The service is disabled",
-			"Invalid time",
-			"Missing user acknowledgment",
-			"Traffic limit exceeded, Try again later",
-			"Unknown command",
-			"Sorry, you have no access to this service",
-			"Sorry, you have no access to unreserved data reporting",
-			"Sorry, you have no access to DNID management",
-			"Sorry, you have no access to multi addressing",
-			"Sorry, you have no access to this service",
-			"Sorry, this service is only for registered users.",
-			"Illegal parameter in view command",
+			"Cannot reach the mobile", "Cannot reach the mobile(s)", "No legal address", "No data to send",
+			"Number of bytes too large", "Time string longer than the allowed 39 characters", "No DNID file found",
+			"Passwords doesn't match", "Illegal ocean region parameter", "No DNID in mobile's ocean region",
+			"Mobile not in ocean region", "Illegal field value", "Memory shortage", "Messagestore full",
+			"Unknown type of address", "Illegal address", "Illegal repetition code", "Illegal poll type",
+			"Sequencenumber table is full", "Option not supported", "User is barred", "Network is barred",
+			"Service is barred", "Unknown DNID", "Illegal destination", "Onestage access is barred",
+			"Twostage access is barred", "Unknown mailbox", "DNID file is full", "DNID file is empty",
+			"Unknown message", "Unknown ENID", "No matching message", "Message is being processed. Try again later",
+			"Message has been rerouted", "Message cannot be deleted", "Unknown user",
+			"Update of userinformation failed", "Message has been delivered", "Message has been aborted",
+			"Message has been deleted", "To much data, please be more specific", "No message(s)",
+			"The service is disabled", "Invalid time", "Missing user acknowledgment",
+			"Traffic limit exceeded, Try again later", "Unknown command", "Sorry, you have no access to this service",
+			"Sorry, you have no access to unreserved data reporting", "Sorry, you have no access to DNID management",
+			"Sorry, you have no access to multi addressing", "Sorry, you have no access to this service",
+			"Sorry, this service is only for registered users.", "Illegal parameter in view command",
 			"Too many commands during this session. Reconnect and try again",
-			"Illegal reference number in address command" ,
-			"Illegal parameter in delete command",
-			"Illegal address parameter",
-			"Illegal service code parameter",
-			"Illegal repetition code parameter",
-			"Illegal priority parameter",
-			"Illegal ocean region parameter",
-			"Illegal egc parameters",
-			"Illegal parameters in program command",
-			"Area polls is not allowed for P6=11",
-			"Sorry, serial number required",
-			"Only a individual poll is allowed for downloading DNID",
-			"Illegal member no in download command",
-			"Sorry, serial number required",
-			"Illegal command type",
-			"Illegal ocean region parameter",
-			"Illegal poll type parameter",
-			"Illegal DNID in poll command parameter",
-			"Illegal response type parameter",
-			"Illegal member number (0 - 255)",
-			"Login incorrect",
-			"Command failed",
-			"You must enter some text before issuing the '.S' command.",
-	};
+			"Illegal reference number in address command", "Illegal parameter in delete command",
+			"Illegal address parameter", "Illegal service code parameter", "Illegal repetition code parameter",
+			"Illegal priority parameter", "Illegal ocean region parameter", "Illegal egc parameters",
+			"Illegal parameters in program command", "Area polls is not allowed for P6=11",
+			"Sorry, serial number required", "Only a individual poll is allowed for downloading DNID",
+			"Illegal member no in download command", "Sorry, serial number required", "Illegal command type",
+			"Illegal ocean region parameter", "Illegal poll type parameter", "Illegal DNID in poll command parameter",
+			"Illegal response type parameter", "Illegal member number (0 - 255)", "Login incorrect", "Command failed",
+			"You must enter some text before issuing the '.S' command.", };
 
-	public TelnetClient createTelnetClient(String url, int port) throws IOException {
-		TelnetClient telnet = new TelnetClient();
-		telnet.connect(url, port);
-		return telnet;
+	private MainWindow parent;
+
+	public void setParent(MainWindow parent) {
+		this.parent = parent;
 	}
 
 	public void sendPwd(PrintStream output, String pwd) {
@@ -135,15 +75,16 @@ public class Functions {
 
 		List<byte[]> response = new ArrayList<>();
 		try {
-			LOGGER.info("Trying to download  : {}", dnid);
+			parent.addToInfoList("Trying to download  : " + dnid);
 
 			// according to manual 9 == all regions -> only one call
 			String cmd = "DNID " + dnid + " 9";
 			write(cmd, output);
 			byte[] bos = readUntilDownload(">", input);
-			LOGGER.info("ADDING " + Arrays.toString(bos));
-			LOGGER.info(Base64.getEncoder().encodeToString(bos));
+			parent.addToInfoList("ADDING " + Arrays.toString(bos));
+			parent.addToInfoList(Base64.getEncoder().encodeToString(bos));
 			response.add(bos);
+
 			/*
 			 * cmd = "DNID " + dnid + " 1"; write(cmd, output); bos = readUntilDownload(">",
 			 * input); LOGGER.info("ADDING " + Arrays.toString(bos)); response.add(bos);
@@ -160,9 +101,10 @@ public class Functions {
 			 */
 
 		} catch (NullPointerException ex) {
-			LOGGER.error("Error when communicating with Telnet", ex);
+			parent.addToInfoList("Error when communicating with server " + ex.toString());
+
 		}
-		LOGGER.info("Retrieved: " + response.size() + " files with dnid: " + dnid);
+		parent.addToInfoList("Retrieved: " + response.size() + " files with dnid: " + dnid);
 		return response;
 	}
 
@@ -175,26 +117,22 @@ public class Functions {
 
 		try {
 			while ((bytesRead = in.read(contents)) > 0) {
-				LOGGER.info("bytes read : " + bytesRead);
 				bos.write(contents, 0, bytesRead);
 				String s = new String(contents, 0, bytesRead);
-				LOGGER.info("current s : " + s);
 				sb.append(s);
 				String currentString = sb.toString().trim();
 				if (currentString.trim().endsWith(pattern)) {
 					bos.flush();
-					LOGGER.info("loop terminated with " + pattern + "   " + currentString);
 					return bos.toByteArray();
 				} else {
 					containsFault(currentString);
 				}
 			}
-			LOGGER.info("loop terminated with  " + bytesRead + " bytes read");
 			bos.flush();
 			return new byte[0];
 
 		} catch (IOException ioe) {
-			LOGGER.info(ioe.toString(), ioe);
+			parent.addToInfoList(ioe.toString());
 			return new byte[0];
 		}
 

@@ -1,26 +1,21 @@
 package ui;
 
-import javax.naming.spi.InitialContextFactoryBuilder;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import dev.InmarsatClientService;
 
 public class MainWindow {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(MainWindow.class);
 	private InmarsatClientService dev = new InmarsatClientService();
 
 	private static final int STOP = 0;
@@ -42,7 +37,8 @@ public class MainWindow {
 	private Text ctl_port;
 	private Text ctl_user;
 	private Text ctl_pwd;
-	private StyledText infoBar;
+	private List infolist;
+	private List commandlist;
 
 	/**
 	 * Launch the application.
@@ -77,8 +73,11 @@ public class MainWindow {
 	 * Create contents of the window.
 	 */
 	protected void createContents() {
+
+		dev.setParent(this);
+
 		shell = new Shell();
-		shell.setSize(451, 370);
+		shell.setSize(451, 415);
 		shell.setText("Inmarsat Report Config");
 
 		dnid_list = new Combo(shell, SWT.NONE);
@@ -153,10 +152,6 @@ public class MainWindow {
 		Label label_1 = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
 		label_1.setBounds(10, 229, 411, 2);
 
-		infoBar = new StyledText(shell, SWT.BORDER);
-		infoBar.setEditable(false);
-		infoBar.setBounds(10, 245, 413, 76);
-
 		Label lblOceanRegion = new Label(shell, SWT.NONE);
 		lblOceanRegion.setBounds(189, 10, 85, 15);
 		lblOceanRegion.setText("Ocean Region");
@@ -204,6 +199,12 @@ public class MainWindow {
 		btnTestconnect.setBounds(350, 198, 75, 25);
 		btnTestconnect.setText("TestConnect");
 
+		infolist = new List(shell, SWT.BORDER | SWT.V_SCROLL);
+		infolist.setBounds(10, 307, 411, 59);
+
+		commandlist = new List(shell, SWT.BORDER | SWT.V_SCROLL);
+		commandlist.setBounds(10, 242, 411, 59);
+
 		// descent defaults
 		dnid_list.select(0);
 		ctl_member.setText("255");
@@ -213,72 +214,74 @@ public class MainWindow {
 		ctl_ip.setText("148.122.32.20");
 		ctl_port.setText("23");
 		ctl_user.setText("E32886SE");
-		//ctl_pwd.setText("DONALD_DUCK");
+		ctl_pwd.setText("DONALD_DUCK");
+
 	}
 
 	private boolean chkInput() {
 
 		int selectedDNID = dnid_list.getSelectionIndex();
 		if (selectedDNID < 0) {
-			errorDlg("ERROR", "No DNID selected");
+			addToInfoList("No DNID selected");
 			dnid_list.setFocus();
 			return false;
 		}
 
 		String member = ctl_member.getText();
 		if (member == null || member.trim().length() < 1) {
-			errorDlg("ERROR", "No MEMBER selected");
+			addToInfoList("No MEMBER selected");
 			ctl_member.setFocus();
 			return false;
 		}
 		try {
 			Integer.parseInt(member);
 		} catch (NumberFormatException e) {
-			errorDlg("ERROR", "MEMBER must be numeric");
+			addToInfoList("MEMBER must be numeric");
 			ctl_member.setFocus();
 			return false;
 		}
 
 		int selectedOCEAN_Region = ocean_region.getSelectionIndex();
 		if (selectedOCEAN_Region < 0) {
-			errorDlg("ERROR", "No Ocean Region selected");
+			addToInfoList("No Ocean Region selected");
 			ocean_region.setFocus();
 			return false;
 		}
 
 		String reportsPer24 = ctl_reports_per_24.getText();
+		@SuppressWarnings("unused")
 		int iReportsPer24 = 0;
 		if (reportsPer24 == null || reportsPer24.trim().length() < 1)
 			reportsPer24 = "48";
 		try {
 			iReportsPer24 = Integer.parseInt(reportsPer24);
 		} catch (NumberFormatException e) {
-			errorDlg("ERROR", "Reports per 24 hours must be numeric");
+			addToInfoList("Reports per 24 hours must be numeric");
 			ctl_reports_per_24.setFocus();
 			return false;
 		}
 
 		String address = ctl_address.getText();
 		if (address == null || address.trim().length() < 1) {
-			errorDlg("ERROR", "No adress");
+			addToInfoList("No address");
 			ctl_address.setFocus();
 			return false;
 		}
 		try {
 			Integer.parseInt(address);
 		} catch (NumberFormatException e) {
-			errorDlg("ERROR", "Address must be numeric");
+			addToInfoList("Address must be numeric");
 			ctl_address.setFocus();
 			return false;
 		}
 		address = address.trim();
 		if (address.length() != 9) {
-			errorDlg("ERROR", "Address must be 9 in length");
+			addToInfoList("Address must be 9 in length");
 			ctl_address.setFocus();
 			return false;
 		}
 		if (address.charAt(0) != '4') {
-			errorDlg("ERROR", "Address must start with a 4");
+			addToInfoList("Address must start with a 4");
 			ctl_address.setFocus();
 			return false;
 		}
@@ -290,18 +293,18 @@ public class MainWindow {
 		try {
 			iHour = Integer.parseInt(hour);
 		} catch (NumberFormatException e) {
-			errorDlg("ERROR", "HOUR must be numeric");
+			addToInfoList("HOUR must be numeric");
 			ctl_hour.setFocus();
 			return false;
 		}
 		if (iHour != 0) {
 			if (iHour < 1) {
-				errorDlg("ERROR", "HOUR must be  1..24");
+				addToInfoList("HOUR must be  1..24");
 				ctl_hour.setFocus();
 				return false;
 			}
 			if (iHour > 24) {
-				errorDlg("ERROR", "HOUR must be  1..24");
+				addToInfoList("HOUR must be  1..24");
 				ctl_hour.setFocus();
 				return false;
 			}
@@ -314,18 +317,18 @@ public class MainWindow {
 		try {
 			iMinute = Integer.parseInt(minute);
 		} catch (NumberFormatException e) {
-			errorDlg("ERROR", "MINUTE must be numeric");
+			addToInfoList("MINUTE must be numeric");
 			ctl_minute.setFocus();
 			return false;
 		}
 		if (iMinute != 0) {
 			if (iMinute < 0) {
-				errorDlg("ERROR", "MINUTE must be  0..59");
+				addToInfoList("MINUTE must be  0..59");
 				ctl_minute.setFocus();
 				return false;
 			}
 			if (iMinute > 59) {
-				errorDlg("ERROR", "MINUTE must be  0..59");
+				addToInfoList("MINUTE must be  0..59");
 				ctl_minute.setFocus();
 				return false;
 			}
@@ -367,20 +370,20 @@ public class MainWindow {
 		boolean ok = infoDlg("", "Execute");
 		if (ok) {
 			if (testConnect()) {
-				
+
 				String ip = ctl_ip.getText();
 				String port = ctl_port.getText();
 				String name = ctl_user.getText();
 				String pwd = ctl_pwd.getText();
-				
+
 				int iPort = -1;
 				try {
 					iPort = Integer.parseInt(port);
+				} catch (NumberFormatException e) {
+					iPort = 23; // default
 				}
-				catch(NumberFormatException e) {
-					iPort = 23;  // default
-				}
-				dev.go(ip,iPort,name,pwd,function, dnid, member, oceanRegion, address, iHour, iMinute, numberOfReportsPer24Hours);
+				dev.go(ip, iPort, name, pwd, function, dnid, member, oceanRegion, address, iHour, iMinute,
+						numberOfReportsPer24Hours);
 			}
 		}
 	}
@@ -392,13 +395,6 @@ public class MainWindow {
 		dialog.setMessage(message);
 		int retCode = dialog.open();
 		return retCode == SWT.YES;
-	}
-
-	private void errorDlg(String info, String message) {
-		MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-		dialog.setText(info);
-		dialog.setMessage(message);
-		dialog.open();
 	}
 
 	private String interPretOceanRegion(String selectedText) {
@@ -416,6 +412,18 @@ public class MainWindow {
 		return "IOR";
 	}
 
+	public void addToInfoList(String str) {
+		infolist.add(str);
+		infolist.select(infolist.getItemCount() - 1);
+		infolist.showSelection();
+	}
+
+	public void addToCommandList(String str) {
+		commandlist.add(str);
+		commandlist.select(commandlist.getItemCount() - 1);
+		commandlist.showSelection();
+	}
+
 	private boolean testConnect() {
 
 		String ip = ctl_ip.getText();
@@ -424,8 +432,7 @@ public class MainWindow {
 		String pwd = ctl_pwd.getText();
 
 		String status = dev.testLogin(ip, port, name, pwd);
-
-		infoBar.setText(status);
+		addToInfoList(status);
 		if (status.equals("LOGIN SUCCESSFUL")) {
 			return true;
 		} else {
