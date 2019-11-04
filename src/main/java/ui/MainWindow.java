@@ -204,6 +204,8 @@ public class MainWindow {
 
 		commandlist = new List(shell, SWT.BORDER | SWT.V_SCROLL);
 		commandlist.setBounds(10, 242, 411, 59);
+		
+		dev.readFile();
 
 		// descent defaults
 		dnid_list.select(0);
@@ -440,4 +442,9 @@ public class MainWindow {
 		}
 
 	}
+
+	public List getCommandList() {
+		return commandlist;
+	}
+
 }

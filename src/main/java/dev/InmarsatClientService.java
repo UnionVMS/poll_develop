@@ -1,12 +1,20 @@
 package dev;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ui.MainWindow;
 
@@ -16,12 +24,13 @@ public class InmarsatClientService {
 	private static final int CONFIG = 1;
 	private static final int START = 2;
 
+	ObjectMapper MAPPER = new ObjectMapper();
+
 	private MainWindow parent;
 
 	public void setParent(MainWindow parent) {
 		this.parent = parent;
 		functions.setParent(parent);
-		
 	}
 
 	private String numberOfReportsPer24Hours(int numberOfReportsPer24Hours) {
@@ -65,43 +74,54 @@ public class InmarsatClientService {
 		return (int) ((((startHour * 60) + startMinute) * 60) / 8.64);
 	}
 
-	private void stopIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID,
+	private boolean stopIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID,
 			String ADDRESS, String MEMBER_NUMBER) {
 
+		CmdLine cmdLine = new CmdLine("STOP", DNID, MEMBER_NUMBER, OCEANREGION, ADDRESS);
 		String cmd = String.format("poll %s,I,%s,N,1,%s,6,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER);
-		parent.addToCommandList(cmd);
 		try {
 			functions.write(cmd, out);
 			String status = functions.readUntil("Text:", input);
 			functions.write(".s", out);
 			status = functions.readUntil(">", input);
 			status = toReferenceNumber(status);
-			parent.addToCommandList("Reference number : " + status);
+			cmdLine.referenceNumber = status;
+			addToCommandList(cmdLine);
+			storeFile();
+			return true;
 		} catch (Exception e) {
 			parent.addToInfoList(e.toString());
+			return false;
 		}
 	}
 
-	private void startIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID,
+	private boolean startIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID,
 			String ADDRESS, String MEMBER_NUMBER) {
+		CmdLine cmdLine = new CmdLine("START", DNID, MEMBER_NUMBER, OCEANREGION, ADDRESS);
 		String cmd = String.format("poll %s,I,%s,N,1,%s,5,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER);
-		parent.addToCommandList(cmd);
 		try {
 			functions.write(cmd, out);
 			String status = functions.readUntil("Text:", input);
 			functions.write(".s", out);
 			status = functions.readUntil(">", input);
 			status = toReferenceNumber(status);
-			parent.addToCommandList("Reference number : " + status);
+			cmdLine.referenceNumber = status;
+			addToCommandList(cmdLine);
+			storeFile();
+			return true;
 		} catch (Exception e) {
 			parent.addToInfoList(e.toString());
+			return false;
 		}
 	}
 
-	private void configIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID,
-			String ADDRESS, String MEMBERNUMBER, String STARTFRAME, String FREQUENCY) {
+	private boolean configIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID,
+			String ADDRESS, String MEMBER_NUMBER, String STARTFRAME, String FREQUENCY) {
 
-		String cmd = String.format("poll %s,I,%s,N,1,%s,4,%s,%s,%s", OCEANREGION, DNID, ADDRESS, MEMBERNUMBER,
+		CmdLine cmdLine = new CmdLine("START", DNID, MEMBER_NUMBER, OCEANREGION, ADDRESS);
+		cmdLine.startframe = STARTFRAME;
+		cmdLine.frequency = FREQUENCY;
+		String cmd = String.format("poll %s,I,%s,N,1,%s,4,%s,%s,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER,
 				STARTFRAME, FREQUENCY);
 		parent.addToCommandList(cmd);
 		try {
@@ -110,9 +130,13 @@ public class InmarsatClientService {
 			functions.write(".s", out);
 			status = functions.readUntil(">", input);
 			status = toReferenceNumber(status);
-			parent.addToCommandList("Reference number : " + status);
+			cmdLine.referenceNumber = status;
+			addToCommandList(cmdLine);
+			storeFile();
+			return true;
 		} catch (Exception e) {
 			parent.addToInfoList(e.toString());
+			return false;
 		}
 	}
 
@@ -202,14 +226,93 @@ public class InmarsatClientService {
 
 		switch (function) {
 		case STOP:
-			stopIndividualPoll(input, output, OCEAN_REGION, DNID, ADDRESS, MEMBER);
+			if (stopIndividualPoll(input, output, OCEAN_REGION, DNID, ADDRESS, MEMBER)) {
+			}
 			break;
 		case CONFIG:
-			configIndividualPoll(input, output, OCEAN_REGION, DNID, ADDRESS, MEMBER, START_FRAME, REPORTS_PER_24);
+			if (configIndividualPoll(input, output, OCEAN_REGION, DNID, ADDRESS, MEMBER, START_FRAME, REPORTS_PER_24)) {
+			}
 			break;
 		case START:
-			startIndividualPoll(input, output, OCEAN_REGION, DNID, ADDRESS, MEMBER);
+			if (startIndividualPoll(input, output, OCEAN_REGION, DNID, ADDRESS, MEMBER)) {
+			}
 			break;
 		}
 	}
+
+	public void readFile()  {
+
+		try {
+
+			String home = System.getProperty("user.home") + "\\inmarsatclientservice_history.txt";
+
+			File file = new File(home);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			List<String> lines = FileUtils.readLines(file, "UTF-8");
+
+			org.eclipse.swt.widgets.List commandlist = parent.getCommandList();
+			commandlist.removeAll();
+			for (String line : lines) {
+				commandlist.add(line);
+			}
+		} catch (IOException ioe) {
+			parent.addToInfoList(ioe.toString());
+		}
+	}
+
+	public void storeFile() {
+
+		try {
+
+			String home = System.getProperty("user.home") + "\\inmarsatclientservice_history.txt";
+
+			File file = new File(home);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			List<String> lines = new ArrayList<>();
+
+			org.eclipse.swt.widgets.List commandlist = parent.getCommandList();
+			int items = commandlist.getItemCount();
+			for (int i = 0; i < items; i++) {
+				String l = commandlist.getItem(i);
+				lines.add(l);
+			}
+			FileUtils.writeLines(file, "UTF-8", lines);
+			readFile();
+
+		} catch (IOException ioe) {
+			parent.addToInfoList(ioe.toString());
+		}
+	}
+
+	private String toJson(CmdLine cmdLine) {
+
+		try {
+			return MAPPER.writeValueAsString(cmdLine);
+		} catch (JsonProcessingException e) {
+			parent.addToInfoList(e.toString());
+			return null;
+		}
+
+	}
+
+	private String fmt2List(String json) {
+		/*
+		 * String pretty = null; try { pretty =
+		 * MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(json); } catch
+		 * (JsonProcessingException e) { parent.addToInfoList(e.toString()); }
+		 */
+		return json;
+	}
+
+	private void addToCommandList(CmdLine cmdLine) {
+		String json = toJson(cmdLine);
+		if (json != null) {
+			parent.addToCommandList(json);
+		}
+	}
+
 }
