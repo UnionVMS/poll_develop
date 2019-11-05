@@ -82,6 +82,9 @@ public class InmarsatClientService {
 		String cmd = String.format("poll %s,I,%s,N,1,%s,6,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER);
 		Date date = new Date(System.currentTimeMillis());
 		cmdLine.submitted = date.toString();
+		parent.calculatedReports.setText("");
+		parent.calculatedStartFrame.setText("");
+		parent.submitted.setText(date.toString());
 
 		try {
 			functions.write(cmd, out);
@@ -105,6 +108,11 @@ public class InmarsatClientService {
 		String cmd = String.format("poll %s,I,%s,N,1,%s,5,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER);
 		Date date = new Date(System.currentTimeMillis());
 		cmdLine.submitted = date.toString();
+		
+		parent.calculatedReports.setText("");
+		parent.calculatedStartFrame.setText("");
+		parent.submitted.setText(date.toString());
+
 
 		try {
 			functions.write(cmd, out);
@@ -137,6 +145,11 @@ public class InmarsatClientService {
 		cmdLine.calculatedReportsPer24 = REPORTS_PER_24;
 		Date date = new Date(System.currentTimeMillis());
 		cmdLine.submitted = date.toString();
+		
+		parent.calculatedReports.setText(REPORTS_PER_24);
+		parent.calculatedStartFrame.setText(STARTFRAME);
+		parent.submitted.setText(date.toString());
+
 
 		
 		String cmd = String.format("poll %s,I,%s,N,1,%s,4,%s,%s,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER,

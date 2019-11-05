@@ -43,6 +43,9 @@ public class MainWindow {
 	private Text ctl_pwd;
 	private List infolist;
 	private List commandlist;
+	public Label calculatedReports;
+	public Label calculatedStartFrame;
+	public Label submitted;
 
 	/**
 	 * Launch the application.
@@ -241,6 +244,21 @@ public class MainWindow {
 		ctl_port.setText("23");
 		ctl_user.setText("E32886SE");
 		ctl_pwd.setText("DONALD_DUCK");
+		
+		calculatedReports = new Label(shell, SWT.NONE);
+		calculatedReports.setToolTipText("calculatedReports");
+		calculatedReports.setBounds(288, 69, 55, 15);
+		calculatedReports.setText("x");
+		
+		calculatedStartFrame = new Label(shell, SWT.NONE);
+		calculatedStartFrame.setText("x");
+		calculatedStartFrame.setBounds(288, 102, 55, 15);
+		
+		submitted = new Label(shell, SWT.NONE);
+		submitted.setText("x");
+		submitted.setToolTipText("Submitted");
+		submitted.setBounds(10, 157, 192, 15);
+		
 
 	}
 
@@ -292,6 +310,10 @@ public class MainWindow {
 		if (cmdLine.minute != null) {
 			ctl_minute.setText(String.valueOf(cmdLine.minute));
 		}
+		
+		calculatedReports.setText( cmdLine.calculatedReportsPer24 == null ? "" : cmdLine.calculatedReportsPer24); 
+		calculatedStartFrame.setText( cmdLine.calculatedStartFrame == null ? "" : cmdLine.calculatedStartFrame); 
+		submitted.setText(cmdLine.submitted == null ? "" : cmdLine.submitted);
 	}
 
 	private boolean chkInput() {
@@ -526,5 +548,4 @@ public class MainWindow {
 	public List getCommandList() {
 		return commandlist;
 	}
-
 }
