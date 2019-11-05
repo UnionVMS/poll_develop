@@ -17,6 +17,9 @@ public class CmdLine {
 		this.minute = null;
 		this.reportsper24 = null;
 		this.referenceNumber = "";
+		this.calculatedStartFrame = "";
+		this.calculatedReportsPer24 = "";
+		this.submitted = "";
 	}
 
 	public String function = "";
@@ -28,6 +31,9 @@ public class CmdLine {
 	public Integer minute = null;
 	public Integer reportsper24 = null;
 	public String referenceNumber = "";
+	public String calculatedStartFrame = "";
+	public String calculatedReportsPer24 = "";
+	public String submitted = "";
 
 	public String getOceanRegion() {
 

@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -79,6 +80,9 @@ public class InmarsatClientService {
 
 		CmdLine cmdLine = new CmdLine("STOP", DNID, MEMBER_NUMBER, OCEANREGION, ADDRESS);
 		String cmd = String.format("poll %s,I,%s,N,1,%s,6,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER);
+		Date date = new Date(System.currentTimeMillis());
+		cmdLine.submitted = date.toString();
+
 		try {
 			functions.write(cmd, out);
 			String status = functions.readUntil("Text:", input);
@@ -99,6 +103,9 @@ public class InmarsatClientService {
 			String ADDRESS, String MEMBER_NUMBER) {
 		CmdLine cmdLine = new CmdLine("START", DNID, MEMBER_NUMBER, OCEANREGION, ADDRESS);
 		String cmd = String.format("poll %s,I,%s,N,1,%s,5,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER);
+		Date date = new Date(System.currentTimeMillis());
+		cmdLine.submitted = date.toString();
+
 		try {
 			functions.write(cmd, out);
 			String status = functions.readUntil("Text:", input);
@@ -118,7 +125,7 @@ public class InmarsatClientService {
 	private boolean configIndividualPoll(BufferedInputStream input, PrintStream out, String OCEANREGION, String DNID,
 			String ADDRESS, String MEMBER_NUMBER, Integer hour,Integer minute, Integer reportsper24) {
 
-		CmdLine cmdLine = new CmdLine("START", DNID, MEMBER_NUMBER, OCEANREGION, ADDRESS);
+		CmdLine cmdLine = new CmdLine("CONFIG", DNID, MEMBER_NUMBER, OCEANREGION, ADDRESS);
 		cmdLine.hour = hour;
 		cmdLine.minute = minute;
 		cmdLine.reportsper24 = reportsper24;
@@ -126,11 +133,14 @@ public class InmarsatClientService {
 		int iStartFrame = calcStartFrame(hour, minute);
 		String STARTFRAME = String.valueOf(iStartFrame);
 		String REPORTS_PER_24 = numberOfReportsPer24Hours(reportsper24);
+		cmdLine.calculatedStartFrame = STARTFRAME;
+		cmdLine.calculatedReportsPer24 = REPORTS_PER_24;
+		Date date = new Date(System.currentTimeMillis());
+		cmdLine.submitted = date.toString();
 
 		
 		String cmd = String.format("poll %s,I,%s,N,1,%s,4,%s,%s,%s", OCEANREGION, DNID, ADDRESS, MEMBER_NUMBER,
 				STARTFRAME, REPORTS_PER_24);
-		parent.addToCommandList(cmd);
 		try {
 			functions.write(cmd, out);
 			String status = functions.readUntil("Text:", input);

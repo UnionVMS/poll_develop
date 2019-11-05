@@ -81,7 +81,7 @@ public class MainWindow {
 		dev.setParent(this);
 
 		shell = new Shell();
-		shell.setSize(616, 516);
+		shell.setSize(617, 516);
 		shell.setText("Inmarsat Report Config");
 
 		dnid_list = new Combo(shell, SWT.NONE);
@@ -100,18 +100,18 @@ public class MainWindow {
 		lblMember.setText("Member");
 
 		lblHour = new Label(shell, SWT.NONE);
-		lblHour.setBounds(10, 90, 55, 15);
+		lblHour.setBounds(10, 97, 55, 15);
 		lblHour.setText("Hour : ");
 
 		lblMinute = new Label(shell, SWT.NONE);
-		lblMinute.setBounds(10, 114, 55, 15);
+		lblMinute.setBounds(10, 123, 55, 15);
 		lblMinute.setText("Minute : ");
 
 		ctl_hour = new Text(shell, SWT.BORDER);
-		ctl_hour.setBounds(71, 87, 51, 23);
+		ctl_hour.setBounds(71, 94, 51, 23);
 
 		ctl_minute = new Text(shell, SWT.BORDER);
-		ctl_minute.setBounds(71, 114, 51, 23);
+		ctl_minute.setBounds(71, 123, 51, 23);
 
 		Button btnStop = new Button(shell, SWT.NONE);
 		btnStop.addSelectionListener(new SelectionAdapter() {
@@ -123,7 +123,7 @@ public class MainWindow {
 
 			}
 		});
-		btnStop.setBounds(515, 56, 75, 25);
+		btnStop.setBounds(389, 59, 75, 25);
 		btnStop.setText("Stop");
 
 		Button btnConfig = new Button(shell, SWT.NONE);
@@ -135,7 +135,7 @@ public class MainWindow {
 				execute(CONFIG);
 			}
 		});
-		btnConfig.setBounds(515, 87, 75, 25);
+		btnConfig.setBounds(389, 90, 75, 25);
 		btnConfig.setText("Config");
 
 		Button btnStart = new Button(shell, SWT.NONE);
@@ -147,11 +147,11 @@ public class MainWindow {
 				execute(START);
 			}
 		});
-		btnStart.setBounds(515, 118, 75, 25);
+		btnStart.setBounds(389, 121, 75, 25);
 		btnStart.setText("Start");
 
 		Label label = new Label(shell, SWT.SEPARATOR | SWT.VERTICAL);
-		label.setBounds(507, 31, 2, 189);
+		label.setBounds(385, 34, 2, 189);
 
 		Label label_1 = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
 		label_1.setBounds(10, 226, 580, 5);
@@ -168,18 +168,18 @@ public class MainWindow {
 		ocean_region.add("IOR");
 
 		Label lblReports = new Label(shell, SWT.NONE);
-		lblReports.setBounds(280, 10, 61, 15);
-		lblReports.setText("Reports/24");
+		lblReports.setBounds(10, 69, 61, 15);
+		lblReports.setText("Reports/24 :");
 
 		ctl_reports_per_24 = new Text(shell, SWT.BORDER);
-		ctl_reports_per_24.setBounds(286, 31, 41, 23);
+		ctl_reports_per_24.setBounds(81, 65, 41, 23);
 
 		Label lblAddress = new Label(shell, SWT.NONE);
-		lblAddress.setBounds(10, 64, 55, 15);
-		lblAddress.setText("Address :");
+		lblAddress.setBounds(288, 10, 55, 15);
+		lblAddress.setText("Address ");
 
 		ctl_address = new Text(shell, SWT.BORDER);
-		ctl_address.setBounds(71, 60, 91, 23);
+		ctl_address.setBounds(286, 31, 91, 23);
 
 		ctl_ip = new Text(shell, SWT.BORDER);
 		ctl_ip.setBounds(10, 178, 135, 21);
@@ -200,7 +200,7 @@ public class MainWindow {
 				testConnect();
 			}
 		});
-		btnTestconnect.setBounds(515, 195, 75, 25);
+		btnTestconnect.setBounds(389, 198, 75, 25);
 		btnTestconnect.setText("TestConnect");
 
 		infolist = new List(shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -280,12 +280,15 @@ public class MainWindow {
 		// ADDRESS
 		ctl_address.setText(cmdLine.address);
 
+		ctl_reports_per_24.setText("");
 		if (cmdLine.reportsper24 != null) {
 			ctl_reports_per_24.setText(String.valueOf(cmdLine.reportsper24));
 		}
+		ctl_hour.setText("");
 		if (cmdLine.hour != null) {
 			ctl_hour.setText(String.valueOf(cmdLine.hour));
 		}
+		ctl_minute.setText("");
 		if (cmdLine.minute != null) {
 			ctl_minute.setText(String.valueOf(cmdLine.minute));
 		}
@@ -421,7 +424,14 @@ public class MainWindow {
 		oceanRegion = interPretOceanRegion(oceanRegion);
 
 		String reportsPer24 = ctl_reports_per_24.getText();
-		int numberOfReportsPer24Hours = Integer.parseInt(reportsPer24);
+		int numberOfReportsPer24Hours = -1;
+		try {
+			numberOfReportsPer24Hours = Integer.parseInt(reportsPer24);
+		}
+		catch(NumberFormatException nfe) {
+			numberOfReportsPer24Hours = 24;
+		}
+		
 
 		String hour = ctl_hour.getText();
 
