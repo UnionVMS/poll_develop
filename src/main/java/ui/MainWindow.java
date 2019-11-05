@@ -495,7 +495,7 @@ public class MainWindow {
 
 	private boolean infoDlg(String info, String message) {
 
-		MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+		MessageBox dialog = new MessageBox(Display.getCurrent().getActiveShell(), SWT.APPLICATION_MODAL | SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 		dialog.setText(info);
 		dialog.setMessage(message);
 		int retCode = dialog.open();
