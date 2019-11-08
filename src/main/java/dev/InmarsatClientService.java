@@ -284,10 +284,10 @@ public class InmarsatClientService {
 			commandlist.removeAll();
 			for (String line : lines) {
 				commandlist.add(line);
-			}
+			}								
 		} catch (IOException ioe) {
 			parent.addToInfoList(ioe.toString());
-		}
+		}				
 	}
 
 	public void storeFile() {

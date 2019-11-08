@@ -207,6 +207,26 @@ public class MainWindow {
 		btnTestconnect.setText("TestConnect");
 
 		infolist = new List(shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		infolist.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+				int[] selectedItems = commandlist.getSelectionIndices();
+				for (int loopIndex = 0; loopIndex < selectedItems.length; loopIndex++) {
+					int idx = selectedItems[loopIndex];
+					String aJson = commandlist.getItem(idx);
+
+					try {
+						CmdLine cmdLine = MAPPER.readValue(aJson, CmdLine.class);
+						setFormData(cmdLine);
+					} catch (Exception e1) {
+						infolist.add(e1.toString());
+					}
+					break;
+				}
+				
+			}
+		});
 		infolist.setBounds(10, 365, 580, 102);
 
 		commandlist = new List(shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -233,6 +253,11 @@ public class MainWindow {
 		commandlist.setBounds(10, 242, 580, 119);
 
 		dev.readFile();
+		int n= commandlist.getItemCount();
+		if(n > 0) {
+			commandlist.select(n-1);
+			commandlist.showSelection();
+		}
 
 		// descent defaults
 		dnid_list.select(0);
@@ -314,6 +339,9 @@ public class MainWindow {
 		calculatedReports.setText( cmdLine.calculatedReportsPer24 == null ? "" : cmdLine.calculatedReportsPer24); 
 		calculatedStartFrame.setText( cmdLine.calculatedStartFrame == null ? "" : cmdLine.calculatedStartFrame); 
 		submitted.setText(cmdLine.submitted == null ? "" : cmdLine.submitted);
+		String wrk = submitted.getText();
+		wrk = cmdLine.function + " " + wrk;
+		submitted.setText(wrk);
 	}
 
 	private boolean chkInput() {
@@ -489,6 +517,12 @@ public class MainWindow {
 				}
 				dev.go(ip, iPort, name, pwd, function, dnid, member, oceanRegion, address, iHour, iMinute,
 						numberOfReportsPer24Hours);
+				int n= commandlist.getItemCount();
+				if(n > 0) {
+					commandlist.select(n-1);
+					commandlist.showSelection();
+				}
+
 			}
 		}
 	}
